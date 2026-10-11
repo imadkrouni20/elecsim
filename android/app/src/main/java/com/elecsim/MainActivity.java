@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import android.webkit.WebChromeClient;
-
 public class MainActivity extends Activity {
   WebView web;
   @Override public void onCreate(Bundle b){
@@ -16,13 +15,11 @@ public class MainActivity extends Activity {
     s.setAllowFileAccess(true);
     s.setAllowContentAccess(true);
     s.setMediaPlaybackRequiresUserGesture(false);
-    s.setCacheMode(WebSettings.LOAD_DEFAULT);
     web.setWebChromeClient(new WebChromeClient());
     web.loadUrl("file:///android_asset/index.html");
     setContentView(web);
   }
   @Override public void onBackPressed(){
-    if(web.canGoBack()) web.goBack();
-    else super.onBackPressed();
+    if(web.canGoBack()) web.goBack(); else super.onBackPressed();
   }
 }

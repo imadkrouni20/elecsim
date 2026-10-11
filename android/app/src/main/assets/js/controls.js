@@ -1,12 +1,10 @@
-window.C = { mode:'walk', yaw:0, pitch:0, moveVec:{x:0,y:0} };
-
+window.C = { mode:"walk", yaw:0, pitch:0, moveVec:{x:0,y:0} };
 C.init = function(){
   var canvas = W.renderer.domElement;
   var moveId = null, lookId = null;
   var moveStart = {x:0,y:0};
   var lookLast = {x:0,y:0};
   var tapTime = 0, tapX = 0, tapY = 0;
-
   function start(e){
     for(var i=0;i<e.changedTouches.length;i++){
       var t = e.changedTouches[i];
@@ -21,7 +19,6 @@ C.init = function(){
     }
     e.preventDefault();
   }
-
   function move(e){
     for(var i=0;i<e.changedTouches.length;i++){
       var t = e.changedTouches[i];
@@ -43,41 +40,32 @@ C.init = function(){
     }
     e.preventDefault();
   }
-
   function end(e){
     for(var i=0;i<e.changedTouches.length;i++){
       var t = e.changedTouches[i];
       if(t.identifier === moveId){
         var dur = performance.now() - tapTime;
         var dist = Math.hypot(t.clientX - tapX, t.clientY - tapY);
-        if(dur < 260 && dist < 12 && C.onTap){
-          C.onTap(t.clientX, t.clientY);
-        }
+        if(dur < 260 && dist < 12 && C.onTap){ C.onTap(t.clientX, t.clientY); }
         moveId = null;
         C.moveVec.x = 0; C.moveVec.y = 0;
-      } else if(t.identifier === lookId){
-        lookId = null;
-      }
+      } else if(t.identifier === lookId){ lookId = null; }
     }
     e.preventDefault();
   }
-
   canvas.addEventListener('touchstart', start, {passive:false});
   canvas.addEventListener('touchmove', move, {passive:false});
   canvas.addEventListener('touchend', end, {passive:false});
   canvas.addEventListener('touchcancel', end, {passive:false});
 };
-
 C.update = function(dt){
   var cam = W.camera;
   cam.rotation.order = 'YXZ';
   cam.rotation.y = C.yaw;
   cam.rotation.x = C.pitch;
-
-  var speed = (C.mode === 'fly') ? 8 : 4;
+  var speed = (C.mode === "fly") ? 8 : 4;
   var mv = C.moveVec;
-
-  if(C.mode === 'fly'){
+  if(C.mode === "fly"){
     var fwd = new THREE.Vector3(0,0,-1).applyQuaternion(cam.quaternion);
     var rgt = new THREE.Vector3(1,0,0).applyQuaternion(cam.quaternion);
     var vel = new THREE.Vector3();
@@ -95,14 +83,12 @@ C.update = function(dt){
       cam.position.add(v);
     }
     cam.position.y = 1.65;
-    // Collision mubassat
     if(cam.position.x < -5.7) cam.position.x = -5.7;
     if(cam.position.x >  5.7) cam.position.x =  5.7;
     if(cam.position.z < -4.7) cam.position.z = -4.7;
     if(cam.position.z >  4.7) cam.position.z =  4.7;
   }
 };
-
 C.setMode = function(m){
   C.mode = m;
   var b = document.getElementById('btnMode');

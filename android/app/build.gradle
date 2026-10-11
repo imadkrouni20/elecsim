@@ -1,6 +1,6 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 android {
-  namespace 'com.elecsim'
+  namespace "com.elecsim"
   compileSdk 34
   defaultConfig {
     applicationId "com.elecsim"
@@ -13,7 +13,5 @@ android {
     sourceCompatibility JavaVersion.VERSION_17
     targetCompatibility JavaVersion.VERSION_17
   }
-  buildTypes {
-    debug { minifyEnabled false }
-  }
+  buildTypes { debug { minifyEnabled false } }
 }

@@ -1,5 +1,4 @@
-window.B = { tool:'select', start:null, ghost:null };
-
+window.B = { tool:"select", start:null, ghost:null };
 B.setTool = function(t){
   B.tool = t;
   B.clearGhost();
@@ -8,44 +7,26 @@ B.setTool = function(t){
     b.classList.toggle('active', b.dataset.tool === t);
   });
 };
-
 B.onTap = function(x, y){
-  if(B.tool !== 'wall') return;
+  if(B.tool !== "wall") return;
   var ray = new THREE.Raycaster();
-  var ndc = new THREE.Vector2(
-    (x / innerWidth) * 2 - 1,
-    -(y / innerHeight) * 2 + 1
-  );
+  var ndc = new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
   ray.setFromCamera(ndc, W.camera);
   var hits = ray.intersectObject(W.floor, false);
   if(!hits.length) return;
   var p = hits[0].point.clone();
   p.y = W.H / 2;
-  if(!B.start){
-    B.start = p;
-    B.showGhost(p);
-  } else {
-    B.buildWall(B.start, p);
-    B.start = null;
-    B.clearGhost();
-  }
+  if(!B.start){ B.start = p; B.showGhost(p); }
+  else { B.buildWall(B.start, p); B.start = null; B.clearGhost(); }
 };
-
 B.showGhost = function(p){
   B.clearGhost();
-  var g = new THREE.Mesh(
-    new THREE.SphereGeometry(0.12, 12, 10),
-    new THREE.MeshBasicMaterial({color:0xffaa00})
-  );
+  var g = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), new THREE.MeshBasicMaterial({color:0xffaa00}));
   g.position.copy(p);
   W.scene.add(g);
   B.ghost = g;
 };
-
-B.clearGhost = function(){
-  if(B.ghost){ W.scene.remove(B.ghost); B.ghost = null; }
-};
-
+B.clearGhost = function(){ if(B.ghost){ W.scene.remove(B.ghost); B.ghost = null; } };
 B.buildWall = function(a, b){
   var dx = b.x - a.x, dz = b.z - a.z;
   var len = Math.hypot(dx, dz);
