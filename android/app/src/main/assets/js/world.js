@@ -1,0 +1,69 @@
+window.W = { walls:[], wires:[], switches:[], H:3 };
+
+W.addBox = function(x,y,z,w,h,d,mat){
+  var m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+  m.position.set(x,y,z);
+  m.castShadow = true; m.receiveShadow = true;
+  W.scene.add(m); W.walls.push(m);
+  return m;
+};
+
+W.init = function(){
+  var canvas = document.getElementById('c');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x9ec8e8);
+  scene.fog = new THREE.Fog(0x9ec8e8, 50, 140);
+
+  var camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.05, 400);
+  camera.position.set(0, 1.65, 8);
+
+  var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, powerPreference:'high-performance'});
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  var hemi = new THREE.HemisphereLight(0xbfd8ff, 0x556644, 0.55);
+  scene.add(hemi);
+
+  var sun = new THREE.DirectionalLight(0xfff0d0, 0.75);
+  sun.position.set(25, 40, 15);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-25; sun.shadow.camera.right=25;
+  sun.shadow.camera.top=25; sun.shadow.camera.bottom=-25;
+  sun.shadow.camera.near=1; sun.shadow.camera.far=120;
+  sun.shadow.bias = -0.0005;
+  scene.add(sun); scene.add(sun.target);
+
+  var groundMat = new THREE.MeshStandardMaterial({color:0x6a8a5a, roughness:1});
+  var ground = new THREE.Mesh(new THREE.PlaneGeometry(300,300), groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  var floorMat = new THREE.MeshStandardMaterial({color:0xb8b0a0, roughness:.9});
+  var floor = new THREE.Mesh(new THREE.BoxGeometry(12,.1,10), floorMat);
+  floor.position.set(0,.05,0);
+  floor.receiveShadow = true; scene.add(floor);
+
+  var wallMat = new THREE.MeshStandardMaterial({color:0xf2ead8, roughness:.95});
+  var T = .15, H = W.H;
+
+  // Jdran: ghurfa 12x10
+  W.addBox(-3.75, H/2, -5, 4.5, H, T, wallMat); // الشمال يسار
+  W.addBox( 3.75, H/2, -5, 4.5, H, T, wallMat); // الشمال يمين
+  W.addBox( 0, H-.3, -5, 3, .6, T, wallMat);    // فوق الباب
+  W.addBox( 0, H/2, 5, 12, H, T, wallMat);       // الجنوب
+  W.addBox(-6, H/2, 0, T, H, 10, wallMat);       // الغرب
+  W.addBox( 6, H/2, 0, T, H, 10, wallMat);       // الشرق
+
+  var ceil = new THREE.Mesh(new THREE.BoxGeometry(12,.1,10),
+    new THREE.MeshStandardMaterial({color:0xeeeeee, roughness:1}));
+  ceil.position.set(0, H+.05, 0); ceil.receiveShadow = true;
+  scene.add(ceil);
+
+  W.scene = scene; W.camera = camera; W.renderer = renderer;
+  W.sun = sun; W.hemi = hemi;
+  W.floor = floor; W.ceiling = ceil;
+};
