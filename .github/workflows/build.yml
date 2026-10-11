@@ -18,15 +18,19 @@ jobs:
       - name: Get Three.js
         run: |
           mkdir -p android/app/src/main/assets/lib
-          curl -L -o android/app/src/main/assets/lib/three.min.js https://unpkg.com/three@0.128.0/build/three.min.js
+          curl -fL -o android/app/src/main/assets/lib/three.min.js https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js
+          ls -la android/app/src/main/assets/lib/
+          wc -c android/app/src/main/assets/lib/three.min.js
+          test -s android/app/src/main/assets/lib/three.min.js || (echo "EMPTY - FAIL" && exit 1)
 
-      - name: Accept Android licenses
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+      - name: Verify assets
+        run: find android/app/src/main/assets -type f | sort
+
+      - name: Accept licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Install SDK 34
-        run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" > /dev/null
+        run: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" > /dev/null
 
       - name: Build APK
         working-directory: android
@@ -34,6 +38,11 @@ jobs:
           wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
           unzip -q gradle-8.5-bin.zip
           ./gradle-8.5/bin/gradle assembleDebug --no-daemon
+
+      - name: Verify APK contents
+        run: |
+          cd android
+          unzip -l app/build/outputs/apk/debug/app-debug.apk | grep -E "assets/(lib|js|css|index)" || echo "WARN: assets missing"
 
       - uses: actions/upload-artifact@v4
         with:
